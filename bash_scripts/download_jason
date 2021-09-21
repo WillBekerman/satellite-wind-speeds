@@ -1,0 +1,19 @@
+#!/bin/bash
+
+CYCLE_START="133"
+CYCLE_END="133"
+
+cd ../data/downloaded_jason
+
+for ((i = $CYCLE_START ; i <= $CYCLE_END ; i++)); do
+    echo "Counter: $i"
+    wget --accept nc \
+	 --mirror \
+	 --page-requisites \
+	 --adjust-extension \
+	 --convert-links \
+	 --backup-converted \
+	 --no-parent \
+	 --no-directories \
+	 https://www.ncei.noaa.gov/data/oceans/jason3/gdr/gdr_ssha/cycle"$i"/
+done
