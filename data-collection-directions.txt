@@ -1,0 +1,17 @@
+Data Collection:
+
+CYGNSS -- data obtained is CYGNSS Level 2 Science Data Record Version 3.0. Accessed
+OPENDAP data at https://podaac-opendap.jpl.nasa.gov/opendap/allData/cygnss/L2/v3.0/.
+Navigated to 2020 directory and subdirectories 264-270 to gather data from 9/20/20
+to 9/26/20. Downloaded each dataset using "file" link (available under /data/cygnss-data).
+
+JASON -- data obtained is Jason-3 Level-2 X-GDR Data. Accessed data at
+http://data.nodc.noaa.gov/jason3/. Navigated to gdr directory and subdirectory
+gdr_ssha (note that these preferences were chosen in consultation with
+the Jason-3 Products Handbook, accessible at https://www.nodc.noaa.gov/media/pdf/jason2/j3_user_handbook.pdf)
+and then subdirectory cycle170 to gather data from 9/20/20
+to 9/26/20. Downloaded the dataset corresponding to each individual day using the
+Multi-File Downloader Chrome Extension (version 2.3). Concatenated files from
+each day in accordance with the directions provided at https://neetinayak.medium.com/combine-many-netcdf-files-into-a-single-file-with-python-469ba476fc14.
+Datasets available under /data/jason-data, where each day has a complete file named
+"jason_<date>.nc" and a .ipynb file used to concatenate the multiple data files.

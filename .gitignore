@@ -1,0 +1,4 @@
+model_fits/*.RData
+data/downloaded_cygnss/*.nc
+data/downloaded_jason/*.nc
+data/*/*.RData
