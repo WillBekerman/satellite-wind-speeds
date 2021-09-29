@@ -1,0 +1,25 @@
+!#/bin/bash
+
+# download the cygnss data
+./download_cygnss 2019 271 365
+./download_cygnss 2020 1 270 
+
+# download the jason data
+./download_jason 133 170
+
+# process both downloaded datasets
+Rscript process_cygnss.R
+Rscript process_jason.R
+
+# put jason into daily files
+Rscript create_daily_jason.R
+
+# do the analyses
+while IFS= read -r line
+do
+    Rscript fit_models.R $line
+
+done < "../start_end_dates.txt"
+
+# generate some plots
+Rscript create_plots.R

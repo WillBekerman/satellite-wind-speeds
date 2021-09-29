@@ -1,7 +1,7 @@
 #!/bin/bash
 
-CYCLE_START="271"
-CYCLE_END="271"
+CYCLE_START="272"
+CYCLE_END="272"
 
 cd ../data/downloaded_cygnss
 
