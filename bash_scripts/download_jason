@@ -1,7 +1,7 @@
 #!/bin/bash
 
-CYCLE_START="133"
-CYCLE_END="133"
+CYCLE_START=$1
+CYCLE_END=$2
 
 cd ../data/downloaded_jason
 

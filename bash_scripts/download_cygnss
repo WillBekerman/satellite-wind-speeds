@@ -1,7 +1,8 @@
 #!/bin/bash
 
-CYCLE_START="272"
-CYCLE_END="272"
+YEAR=$1
+CYCLE_START=$2
+CYCLE_END=$3
 
 cd ../data/downloaded_cygnss
 
@@ -14,5 +15,5 @@ for ((i = $CYCLE_START ; i <= $CYCLE_END ; i++)); do
     -np \
     -nd \
     -A "*.nc" \
-    https://podaac-tools.jpl.nasa.gov/drive/files/allData/cygnss/L2/v3.0/2019/"$i"
+    https://podaac-tools.jpl.nasa.gov/drive/files/allData/cygnss/L2/v3.0/"$YEAR"/"$i"
 done
