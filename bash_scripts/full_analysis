@@ -8,18 +8,18 @@
 ./download_jason 133 170
 
 # process both downloaded datasets
-Rscript process_cygnss.R
-Rscript process_jason.R
+Rscript ../R_scripts/process_cygnss.R
+Rscript ../R_scripts/process_jason.R
 
 # put jason into daily files
-Rscript create_daily_jason.R
+Rscript ../R_scripts/create_daily_jason.R
 
 # do the analyses
 while IFS= read -r line
 do
-    Rscript fit_models.R $line
+    Rscript ../R_scripts/fit_models.R $line
 
 done < "../start_end_dates.txt"
 
 # generate some plots
-Rscript create_plots.R
+Rscript ../R_scripts/create_plots.R
