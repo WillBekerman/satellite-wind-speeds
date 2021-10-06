@@ -1,4 +1,4 @@
-!#/bin/bash
+#!/bin/bash
 
 # download the cygnss data
 ./download_cygnss 2019 271 365
