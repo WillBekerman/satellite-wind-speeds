@@ -6,7 +6,7 @@ CYCLE_END=$2
 cd ../data/downloaded_jason
 
 for ((i = $CYCLE_START ; i <= $CYCLE_END ; i++)); do
-    echo "Counter: $i"
+    echo "Cycle: $i"
     wget --accept nc \
 	 --mirror \
 	 --page-requisites \
