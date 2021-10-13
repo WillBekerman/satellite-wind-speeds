@@ -12,8 +12,8 @@ dates <- sort( as.Date( dates_text, format = "%Y%m%d" ) )
 # loop over the files
 for(j in 1:length(filelist)){
   
-    # standardize times as seconds since midnight on 2020-01-01
-    sec_offset <- as.numeric(difftime(dates[j], as.Date('2020-01-01'), units='secs'))
+    # standardize times as seconds since midnight on 2019-01-01
+    sec_offset <- as.numeric(difftime(dates[j], as.Date('2019-01-01'), units='secs'))
     time_offset <- sec_offset + 0.5
     
     # process jth .nc file

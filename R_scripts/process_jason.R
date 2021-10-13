@@ -5,8 +5,8 @@ nc_filepath <- "../data/downloaded_jason"
 processed_filepath <- "../data/processed_notdaily_jason"
 filelist <- list.files(nc_filepath, pattern = "\\.nc$")
 
-# standardize times as seconds since midnight on 2020-01-01
-nday = as.numeric(difftime(as.Date('2020-01-01'), as.Date('2000-01-01'), units='days'))
+# standardize times as seconds since midnight on 2019-01-01
+nday = as.numeric(difftime(as.Date('2019-01-01'), as.Date('2000-01-01'), units='days'))
 time_offset = -86400*nday
 
 # loop over the files

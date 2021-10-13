@@ -35,7 +35,7 @@ for (j in 1:length(dates)){
     }
 
     # subset to the time period corresponding to this date, remove missing values
-    nday <- as.numeric(difftime(dates[j], as.Date('2020-01-01'), units='days'))
+    nday <- as.numeric(difftime(dates[j], as.Date('2019-01-01'), units='days'))
     time_range <- 24*60*60*c(nday,nday+1)
     df <- subset( temp_df, temp_df$time >= time_range[1] & temp_df$time < time_range[2] )
     df <- na.omit(df)
