@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # download the cygnss data
-./download_cygnss 2019 271 365
-./download_cygnss 2020 1 269 
+# ./download_cygnss 2019 271 365
+# ./download_cygnss 2020 1 269
+Rscript ../R_scripts/download_cygnss.R 2019 271 365
+Rscript ../R_scripts/download_cygnss.R 2020 1 269
 
 # download the jason data
 ./download_jason 133 170
