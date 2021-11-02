@@ -1,5 +1,5 @@
 
-setwd("../data/fake_downloaded_cygnss")
+setwd("../data/downloaded_cygnss")
 
 #args <- c("2020","1","2")
 args <- commandArgs(trailingOnly=TRUE)
