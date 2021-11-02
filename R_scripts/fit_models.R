@@ -101,6 +101,10 @@ for( cyg_sat in 1:8 ){
 
     # combine cygnss and jason datasets
     dat <- rbind( dat_cyg, dat_jas )
+    
+    # standardize time as number of hours since earliest measurement in dat
+    dat$time <- dat$time - min(dat$time)
+    dat$time <- dat$time/3600
 
     # create x,y,z coordinates
     dat$x <- 6371*cos( dat$lat*pi/180 )*cos( (dat$lon-180)*pi/180 )
@@ -109,13 +113,17 @@ for( cyg_sat in 1:8 ){
 
     # create variables for design matrix
     dat$intercept <- 1
-    dat$lat_sq <- dat$lat^2
-    dat$lat_cub <- dat$lat^3
+    # dat$lat_sq <- dat$lat^2
+    # dat$lat_cub <- dat$lat^3
+    dat$radians <- dat$lat*pi/180
+    dat$radians_sq <- dat$radians^2
+    dat$radians_cub <- dat$radians^3
     
     # create y, locs, X for input to fit_model
     y <- dat$wind_speed
     locs <- as.matrix( dat[ , c("x","y","z","time","sat_num") ] )
-    X <- as.matrix( dat[, c("intercept","time","sat_num","lat","lat_sq","lat_cub")] )
+    # X <- as.matrix( dat[, c("intercept","time","sat_num","lat","lat_sq","lat_cub")] )
+    X <- as.matrix( dat[, c("intercept","time","sat_num","radians","radians_sq","radians_cub")] )
     
     # fit the model
     model <- GpGp::fit_model(y, locs, X, covfun_name = "matern_spacetime_categorical_local")
