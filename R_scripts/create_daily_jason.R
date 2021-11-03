@@ -20,6 +20,14 @@ for (j in 1:length(dates)){
   
     # find the files with data for this date
     files_today <- filelist[ grep( format(dates[j], "%Y%m%d" ), filelist ) ]
+    
+    # deal with any missing dates
+    if (length(files_today) == 0){
+      df = NA
+      filename <- paste0("jason-",dates[j],".RData")
+      save(df, file = file.path(savepath, filename))
+      next
+    }
 
     # load each of them in, put them in a temporary data frame
     temp_df <- loadRData( file.path( filepath, files_today[1] ) )
