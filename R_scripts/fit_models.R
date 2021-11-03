@@ -7,6 +7,7 @@ args <- commandArgs(trailingOnly=TRUE)
 # script assumes we have files for each date in the range
 date_1 <- as.Date(args[1])
 date_2 <- as.Date(args[2])
+covfun <- "matern_spacetime"
 dates <- seq(date_1, to = date_2, by = 'day')
 
 # source functions
@@ -41,7 +42,7 @@ cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 44] <- 4
 cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 47] <- 5
 cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 54] <- 6
 cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 55] <- 7
-cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 73] <- 8      
+cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 73] <- 8
 
 
 ## OPEN APPROPRIATE JASON FILES AND CREATE A JASON DATA MATRIX
@@ -121,12 +122,14 @@ for( cyg_sat in 1:8 ){
     
     # create y, locs, X for input to fit_model
     y <- dat$wind_speed
-    locs <- as.matrix( dat[ , c("x","y","z","time","sat_num") ] )
+    #locs <- as.matrix( dat[ , c("x","y","z","time","sat_num") ] )
+    locs <- as.matrix( dat[ , c("x","y","z","time") ] )
     # X <- as.matrix( dat[, c("intercept","time","sat_num","lat","lat_sq","lat_cub")] )
     X <- as.matrix( dat[, c("intercept","time","sat_num","radians","radians_sq","radians_cub")] )
     
     # fit the model
-    model <- GpGp::fit_model(y, locs, X, covfun_name = "matern_spacetime_categorical_local")
+    # model <- GpGp::fit_model(y, locs, X, covfun_name = "matern_spacetime_categorical_local")
+    model <- GpGp::fit_model(y, locs, X, covfun_name = covfun)
 
     # save it
     models[[cyg_sat]] <- model
