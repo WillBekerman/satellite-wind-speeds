@@ -31,12 +31,15 @@ for(p in 1:nperiods){
         r <- (p-1)*8 + sat
         parameter_frame[r,"period"] <- p
         parameter_frame[r,"sat"] <- sat
+        if ( all(is.na(models[[p]][[sat]])) ) { next } # handle case of zero cyg_sat observations
         parameter_frame[r,beta_names] <- models[[p]][[sat]]$betahat
         parameter_frame[r,sebeta_names] <- models[[p]][[sat]]$sebeta
         parameter_frame[r,covparm_names] <- models[[p]][[sat]]$covparms
     }
 }
- 
+
+# handle case of zero cyg_sat observations
+parameter_frame <- na.omit(parameter_frame)
 
 # CYGNSS satellite bias estimates plot
 bias_plot <-
