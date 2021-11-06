@@ -85,6 +85,12 @@ for( cyg_sat in 1:8 ){
 
     # pull out data from satellite cyg_sat
     dat_this_cyg <- cygnss_dat[ cygnss_dat[,'sat'] == cyg_sat , ]
+    
+    # handle case of zero cyg_sat observations
+    if (nrow(dat_this_cyg) == 0){
+      models[[cyg_sat]] <- NA
+      next
+    }
 
     # sample numsat observations from cygnss
     obs <- sort( sample(1:nrow(dat_this_cyg), numsat) )
