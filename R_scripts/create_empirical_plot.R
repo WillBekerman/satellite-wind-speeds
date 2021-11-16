@@ -11,7 +11,7 @@ distance = function(x1,x2){
 }
 
 date_1 <- as.Date('2019-09-28')
-date_2 <- as.Date('2020-09-25')
+date_2 <- as.Date('2019-09-28')
 dates <- seq(date_1, to = date_2, by = 'day')
 
 `%nin%` <- Negate('%in%')
@@ -72,6 +72,9 @@ for (j in 1:length(dates)){
   tolerance = 0.5*60 # thirty seconds
   
   for (time in (seq(0, num_sec, by = by))) {
+
+    print(time/num_sec)
+      
     # go to next time in seq if cygnss_dat or jason_dat does not have measurement at time
     # within tolerance
     if (!any( abs(time - jason_dat[,ncol(jason_dat)]) < tolerance ) || !any( abs(time - cygnss_dat[,ncol(cygnss_dat)]) < tolerance ) ) {
@@ -91,18 +94,25 @@ for (j in 1:length(dates)){
       
       dist_mat = matrix(NA, nrow=length(jws), ncol=length(cws))
       
-      for (jws_candidate_num in 1:length(jws)){
-        for (cws_candidate_num in 1:length(cws)){
-          dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
-        }
-      }
+      # this can be replaced by
+      dist_mat <- rdist.earth( x1, x2, miles = FALSE )
+      #for (jws_candidate_num in 1:length(jws)){
+      #  for (cws_candidate_num in 1:length(cws)){
+      #    dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
+      #  }
+      #}
       
+      # don't call the which function twice here. Call once, save the result, and then assign.
       jws_1 = c(jws_1, jws[which(dist_mat==min(dist_mat), arr.ind = T)[1]])
       cws_1 = c(cws_1, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
       dist_1 = c(dist_1, min(dist_mat))
     }
     
-    
+   if(FALSE){ 
+      # you shouldn't rewrite this code several times. Figure out how to put
+      # the data into arrays or lists, so that you can iterate over the arrays.
+      # at the very least, write a function to perform these operations,
+      # and then call the function 8 times.
     if (any( abs(time - cygnss_2[,ncol(cygnss_2)]) < tolerance ) ) {
       i = which(abs(time - cygnss_2[,ncol(cygnss_2)]) %in% abs(time - cygnss_2[,ncol(cygnss_2)][which(abs(time - cygnss_2[,ncol(cygnss_2)]) < tolerance )]) )
       ij = which(abs(time - jason_dat[,ncol(jason_dat)]) %in% abs(time - jason_dat[,ncol(jason_dat)][which(abs(time - jason_dat[,ncol(jason_dat)]) < tolerance )]) )
@@ -264,6 +274,8 @@ for (j in 1:length(dates)){
       cws_8 = c(cws_8, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
       dist_8 = c(dist_8, min(dist_mat))
     }
+
+                   }
     
   }
   
