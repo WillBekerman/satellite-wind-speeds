@@ -6,23 +6,18 @@ library(fields)
 # source functions
 source("../R/load_data.R")
 
-distance = function(x1,x2){
-  return (rdist.earth.vec(x1,x2,miles=F))
-}
-
 date_1 <- as.Date('2019-09-28')
-date_2 <- as.Date('2019-09-28')
+date_2 <- as.Date('2019-10-04')
 dates <- seq(date_1, to = date_2, by = 'day')
 
 `%nin%` <- Negate('%in%')
 dates <- dates[dates %nin% c(seq(as.Date("2020-02-01"), as.Date("2020-02-14"), by = 'day'))]
 dates <- dates[dates %nin% c(seq(as.Date("2020-06-13"), as.Date("2020-06-19"), by = 'day'))]
 
-dist_1 = dist_2 = dist_3 = dist_4 = dist_5 = dist_6 = dist_7 = dist_8 = numeric()
-jws_1 = cws_1 = jws_2 = cws_2 = jws_3 = cws_3 = jws_4 = cws_4 = jws_5 = cws_5 = jws_6 = cws_6 = jws_7 = cws_7 = jws_8 = cws_8 = numeric()
+dist_l = jws_l = cws_l = list(numeric(), numeric(), numeric(), numeric(), numeric(), numeric(), numeric(), numeric())
 
-library(profvis)
-profvis({
+#library(profvis)
+#profvis({
 for (j in 1:length(dates)){
   cat('\nDate: ', as.character(dates[j]))
   
@@ -43,14 +38,6 @@ for (j in 1:length(dates)){
   cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 54] <- 6
   cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 55] <- 7
   cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 73] <- 8
-  cygnss_1 <- cygnss_dat[which(cygnss_dat[,'sat']==1),]
-  cygnss_2 <- cygnss_dat[which(cygnss_dat[,'sat']==2),]
-  cygnss_3 <- cygnss_dat[which(cygnss_dat[,'sat']==3),]
-  cygnss_4 <- cygnss_dat[which(cygnss_dat[,'sat']==4),]
-  cygnss_5 <- cygnss_dat[which(cygnss_dat[,'sat']==5),]
-  cygnss_6 <- cygnss_dat[which(cygnss_dat[,'sat']==6),]
-  cygnss_7 <- cygnss_dat[which(cygnss_dat[,'sat']==7),]
-  cygnss_8 <- cygnss_dat[which(cygnss_dat[,'sat']==8),]
   
   jason_dir <- "../data/processed_daily_jason"
   filelist <- list.files(path = jason_dir, pattern = "\\.RData$")
@@ -73,223 +60,46 @@ for (j in 1:length(dates)){
   
   for (time in (seq(0, num_sec, by = by))) {
 
-    print(time/num_sec)
+    cat(paste0(round(time/num_sec,4)*100,"%\n"))
       
     # go to next time in seq if cygnss_dat or jason_dat does not have measurement at time
     # within tolerance
-    if (!any( abs(time - jason_dat[,ncol(jason_dat)]) < tolerance ) || !any( abs(time - cygnss_dat[,ncol(cygnss_dat)]) < tolerance ) ) {
+    if ( !any( abs(time - jason_dat[,ncol(jason_dat)]) < tolerance ) || !any( abs(time - cygnss_dat[,ncol(cygnss_dat)]) < tolerance ) ) {
       next
     }
     
+    for (satnum in 1:8){
     
-    if (any( abs(time - cygnss_1[,ncol(cygnss_1)]) < tolerance ) ) {
-      i = which(abs(time - cygnss_1[,ncol(cygnss_1)]) %in% abs(time - cygnss_1[,ncol(cygnss_1)][which(abs(time - cygnss_1[,ncol(cygnss_1)]) < tolerance )]) )
-      ij = which(abs(time - jason_dat[,ncol(jason_dat)]) %in% abs(time - jason_dat[,ncol(jason_dat)][which(abs(time - jason_dat[,ncol(jason_dat)]) < tolerance )]) )
+      cygnss_satnum <- cygnss_dat[which(cygnss_dat$sat==satnum),]
+      jws_vec = cws_vec = dist_vec = numeric()
       
-      x1 = cbind(jason_dat[ij,2], jason_dat[ij,1]) # first col long, second col lat
-      x2 = cbind(cygnss_1[i,3], cygnss_1[i,2]) # first col long, second col lat
-      
-      jws = jason_dat[ij,6]
-      cws = cygnss_1[i,6]
-      
-      dist_mat = matrix(NA, nrow=length(jws), ncol=length(cws))
-      
-      # this can be replaced by
-      dist_mat <- rdist.earth( x1, x2, miles = FALSE )
-      #for (jws_candidate_num in 1:length(jws)){
-      #  for (cws_candidate_num in 1:length(cws)){
-      #    dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
-      #  }
-      #}
-      
-      # don't call the which function twice here. Call once, save the result, and then assign.
-      jws_1 = c(jws_1, jws[which(dist_mat==min(dist_mat), arr.ind = T)[1]])
-      cws_1 = c(cws_1, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
-      dist_1 = c(dist_1, min(dist_mat))
-    }
-    
-   if(FALSE){ 
-      # you shouldn't rewrite this code several times. Figure out how to put
-      # the data into arrays or lists, so that you can iterate over the arrays.
-      # at the very least, write a function to perform these operations,
-      # and then call the function 8 times.
-    if (any( abs(time - cygnss_2[,ncol(cygnss_2)]) < tolerance ) ) {
-      i = which(abs(time - cygnss_2[,ncol(cygnss_2)]) %in% abs(time - cygnss_2[,ncol(cygnss_2)][which(abs(time - cygnss_2[,ncol(cygnss_2)]) < tolerance )]) )
-      ij = which(abs(time - jason_dat[,ncol(jason_dat)]) %in% abs(time - jason_dat[,ncol(jason_dat)][which(abs(time - jason_dat[,ncol(jason_dat)]) < tolerance )]) )
-      
-      x1 = cbind(jason_dat[ij,2], jason_dat[ij,1]) # first col long, second col lat
-      x2 = cbind(cygnss_2[i,3], cygnss_2[i,2]) # first col long, second col lat
-      
-      jws = jason_dat[ij,6]
-      cws = cygnss_2[i,6]
-      
-      dist_mat = matrix(NA, nrow=length(jws), ncol=length(cws))
-      
-      for (jws_candidate_num in 1:length(jws)){
-        for (cws_candidate_num in 1:length(cws)){
-          dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
-        }
+      if (any( abs(time - cygnss_satnum$time) < tolerance ) ) {
+        i <- which(abs(time - cygnss_satnum$time) %in% abs(time - cygnss_satnum$time[which(abs(time - cygnss_satnum$time) < tolerance )]) )
+        ij <- which(abs(time - jason_dat$time) %in% abs(time - jason_dat$time[which(abs(time - jason_dat$time) < tolerance )]) )
+        
+        x1 <- cbind(jason_dat$lon[ij], jason_dat$lat[ij])
+        x2 <- cbind(cygnss_satnum$lon[i], cygnss_satnum$lat[i])
+        
+        jws <- jason_dat$wind_speed[ij]
+        cws <- cygnss_satnum$wind_speed[i]
+        
+        dist_mat <- matrix(NA, nrow=length(jws), ncol=length(cws))
+        dist_mat <- rdist.earth( x1, x2, miles = FALSE )
+        
+        min_ix <- which(dist_mat==min(dist_mat), arr.ind = T)
+        jws_vec <- c(jws_vec, jws[min_ix[1]])
+        cws_vec <- c(cws_vec, cws[min_ix[2]])
+        dist_vec <- c(dist_vec, min(dist_mat))
       }
       
-      jws_2 = c(jws_2, jws[which(dist_mat==min(dist_mat), arr.ind = T)[1]])
-      cws_2 = c(cws_2, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
-      dist_2 = c(dist_2, min(dist_mat))
+      jws_l[[satnum]] <- c(jws_l[[satnum]], jws_vec)
+      cws_l[[satnum]] <- c(cws_l[[satnum]], cws_vec)
+      dist_l[[satnum]] <- c(dist_l[[satnum]], dist_vec)
+      
     }
-    
-    if (any( abs(time - cygnss_3[,ncol(cygnss_3)]) < tolerance ) ) {
-      i = which(abs(time - cygnss_3[,ncol(cygnss_3)]) %in% abs(time - cygnss_3[,ncol(cygnss_3)][which(abs(time - cygnss_3[,ncol(cygnss_3)]) < tolerance )]) )
-      ij = which(abs(time - jason_dat[,ncol(jason_dat)]) %in% abs(time - jason_dat[,ncol(jason_dat)][which(abs(time - jason_dat[,ncol(jason_dat)]) < tolerance )]) )
-      
-      x1 = cbind(jason_dat[ij,2], jason_dat[ij,1]) # first col long, second col lat
-      x2 = cbind(cygnss_3[i,3], cygnss_3[i,2]) # first col long, second col lat
-      
-      jws = jason_dat[ij,6]
-      cws = cygnss_3[i,6]
-      
-      dist_mat = matrix(NA, nrow=length(jws), ncol=length(cws))
-      
-      for (jws_candidate_num in 1:length(jws)){
-        for (cws_candidate_num in 1:length(cws)){
-          dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
-        }
-      }
-      
-      jws_3 = c(jws_3, jws[which(dist_mat==min(dist_mat), arr.ind = T)[1]])
-      cws_3 = c(cws_3, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
-      dist_3 = c(dist_3, min(dist_mat))
-    }
-    
-    if (any( abs(time - cygnss_4[,ncol(cygnss_4)]) < tolerance ) ) {
-      i = which(abs(time - cygnss_4[,ncol(cygnss_4)]) %in% abs(time - cygnss_4[,ncol(cygnss_4)][which(abs(time - cygnss_4[,ncol(cygnss_4)]) < tolerance )]) )
-      ij = which(abs(time - jason_dat[,ncol(jason_dat)]) %in% abs(time - jason_dat[,ncol(jason_dat)][which(abs(time - jason_dat[,ncol(jason_dat)]) < tolerance )]) )
-      
-      x1 = cbind(jason_dat[ij,2], jason_dat[ij,1]) # first col long, second col lat
-      x2 = cbind(cygnss_4[i,3], cygnss_4[i,2]) # first col long, second col lat
-      
-      jws = jason_dat[ij,6]
-      cws = cygnss_4[i,6]
-      
-      dist_mat = matrix(NA, nrow=length(jws), ncol=length(cws))
-      
-      for (jws_candidate_num in 1:length(jws)){
-        for (cws_candidate_num in 1:length(cws)){
-          dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
-        }
-      }
-      
-      jws_4 = c(jws_4, jws[which(dist_mat==min(dist_mat), arr.ind = T)[1]])
-      cws_4 = c(cws_4, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
-      dist_4 = c(dist_4, min(dist_mat))
-    }
-    
-    
-    if (any( abs(time - cygnss_5[,ncol(cygnss_5)]) < tolerance ) ) {
-      i = which(abs(time - cygnss_5[,ncol(cygnss_5)]) %in% abs(time - cygnss_5[,ncol(cygnss_5)][which(abs(time - cygnss_5[,ncol(cygnss_5)]) < tolerance )]) )
-      ij = which(abs(time - jason_dat[,ncol(jason_dat)]) %in% abs(time - jason_dat[,ncol(jason_dat)][which(abs(time - jason_dat[,ncol(jason_dat)]) < tolerance )]) )
-      
-      x1 = cbind(jason_dat[ij,2], jason_dat[ij,1]) # first col long, second col lat
-      x2 = cbind(cygnss_5[i,3], cygnss_5[i,2]) # first col long, second col lat
-      
-      jws = jason_dat[ij,6]
-      cws = cygnss_5[i,6]
-      
-      dist_mat = matrix(NA, nrow=length(jws), ncol=length(cws))
-      
-      for (jws_candidate_num in 1:length(jws)){
-        for (cws_candidate_num in 1:length(cws)){
-          dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
-        }
-      }
-      
-      jws_5 = c(jws_5, jws[which(dist_mat==min(dist_mat), arr.ind = T)[1]])
-      cws_5 = c(cws_5, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
-      dist_5 = c(dist_5, min(dist_mat))
-    }
-    
-    if (any( abs(time - cygnss_6[,ncol(cygnss_6)]) < tolerance ) ) {
-      i = which(abs(time - cygnss_6[,ncol(cygnss_6)]) %in% abs(time - cygnss_6[,ncol(cygnss_6)][which(abs(time - cygnss_6[,ncol(cygnss_6)]) < tolerance )]) )
-      ij = which(abs(time - jason_dat[,ncol(jason_dat)]) %in% abs(time - jason_dat[,ncol(jason_dat)][which(abs(time - jason_dat[,ncol(jason_dat)]) < tolerance )]) )
-      
-      x1 = cbind(jason_dat[ij,2], jason_dat[ij,1]) # first col long, second col lat
-      x2 = cbind(cygnss_6[i,3], cygnss_6[i,2]) # first col long, second col lat
-      
-      jws = jason_dat[ij,6]
-      cws = cygnss_6[i,6]
-      
-      dist_mat = matrix(NA, nrow=length(jws), ncol=length(cws))
-      
-      for (jws_candidate_num in 1:length(jws)){
-        for (cws_candidate_num in 1:length(cws)){
-          dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
-        }
-      }
-      
-      jws_6 = c(jws_6, jws[which(dist_mat==min(dist_mat), arr.ind = T)[1]])
-      cws_6 = c(cws_6, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
-      dist_6 = c(dist_6, min(dist_mat))
-    }
-    
-    if (any( abs(time - cygnss_7[,ncol(cygnss_7)]) < tolerance ) ) {
-      i = which(abs(time - cygnss_7[,ncol(cygnss_7)]) %in% abs(time - cygnss_7[,ncol(cygnss_7)][which(abs(time - cygnss_7[,ncol(cygnss_7)]) < tolerance )]) )
-      ij = which(abs(time - jason_dat[,ncol(jason_dat)]) %in% abs(time - jason_dat[,ncol(jason_dat)][which(abs(time - jason_dat[,ncol(jason_dat)]) < tolerance )]) )
-      
-      x1 = cbind(jason_dat[ij,2], jason_dat[ij,1]) # first col long, second col lat
-      x2 = cbind(cygnss_7[i,3], cygnss_7[i,2]) # first col long, second col lat
-      
-      jws = jason_dat[ij,6]
-      cws = cygnss_7[i,6]
-      
-      dist_mat = matrix(NA, nrow=length(jws), ncol=length(cws))
-      
-      for (jws_candidate_num in 1:length(jws)){
-        for (cws_candidate_num in 1:length(cws)){
-          dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
-        }
-      }
-      
-      jws_7 = c(jws_7, jws[which(dist_mat==min(dist_mat), arr.ind = T)[1]])
-      cws_7 = c(cws_7, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
-      dist_7 = c(dist_7, min(dist_mat))
-    }
-    
-    if (any( abs(time - cygnss_8[,ncol(cygnss_8)]) < tolerance ) ) {
-      i = which(abs(time - cygnss_8[,ncol(cygnss_8)]) %in% abs(time - cygnss_8[,ncol(cygnss_8)][which(abs(time - cygnss_8[,ncol(cygnss_8)]) < tolerance )]) )
-      ij = which(abs(time - jason_dat[,ncol(jason_dat)]) %in% abs(time - jason_dat[,ncol(jason_dat)][which(abs(time - jason_dat[,ncol(jason_dat)]) < tolerance )]) )
-      
-      x1 = cbind(jason_dat[ij,2], jason_dat[ij,1]) # first col long, second col lat
-      x2 = cbind(cygnss_8[i,3], cygnss_8[i,2]) # first col long, second col lat
-      
-      jws = jason_dat[ij,6]
-      cws = cygnss_8[i,6]
-      
-      dist_mat = matrix(NA, nrow=length(jws), ncol=length(cws))
-      
-      for (jws_candidate_num in 1:length(jws)){
-        for (cws_candidate_num in 1:length(cws)){
-          dist_mat[jws_candidate_num, cws_candidate_num] = distance(t(as.matrix(x1[jws_candidate_num,])),t(as.matrix(x2[cws_candidate_num,])))
-        }
-      }
-      
-      jws_8 = c(jws_8, jws[which(dist_mat==min(dist_mat), arr.ind = T)[1]])
-      cws_8 = c(cws_8, cws[which(dist_mat==min(dist_mat), arr.ind = T)[2]])
-      dist_8 = c(dist_8, min(dist_mat))
-    }
-
-                   }
-    
   }
-  
 }
-})
-
-i <- 1
-dist_l = jws_l = cws_l = list()
-while(i <= 8) {
-  dist_l[[i]] <- get(paste0('dist_',i))
-  jws_l[[i]] <- get(paste0('jws_',i))
-  cws_l[[i]] <- get(paste0('cws_',i))
-  i <- i + 1
-}
+#})
 
 t1 = 100
 t2 = 200
