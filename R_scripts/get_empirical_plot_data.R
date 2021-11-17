@@ -1,5 +1,4 @@
 # load libraries
-library(ggplot2)
 library(fields)
 
 # Assume we are running from the R_scripts directory
@@ -10,46 +9,78 @@ date_1 <- as.Date('2019-09-28')
 date_2 <- as.Date('2019-10-04')
 dates <- seq(date_1, to = date_2, by = 'day')
 
+# filter out "bad" dates, i.e. dates with no Jason data
 `%nin%` <- Negate('%in%')
-dates <- dates[dates %nin% c(seq(as.Date("2020-02-01"), as.Date("2020-02-14"), by = 'day'))]
-dates <- dates[dates %nin% c(seq(as.Date("2020-06-13"), as.Date("2020-06-19"), by = 'day'))]
+dates <- dates[dates %nin% seq(as.Date("2020-02-01"), as.Date("2020-02-14"), by = 'day')]
+dates <- dates[dates %nin% seq(as.Date("2020-06-13"), as.Date("2020-06-19"), by = 'day')]
 
-dist_l = jws_l = cws_l = list(numeric(), numeric(), numeric(), numeric(), numeric(), numeric(), numeric(), numeric())
+# initialize lists that we intend to save
+num_cygnss <- 8
+dist_l <- list()
+jws_l <- list()
+cws_l <- list()
+for(j in 1:num_cygnss){
+    dist_l[[j]] <- numeric()
+    jws_l[[j]] <- numeric()
+    cws_l[[j]] <- numeric()
+}
 
+# directory for cygnss data, cygnss RData files
+cygnss_dir <- "../data/processed_daily_cygnss"
+filelist_cygnss <- list.files(path = cygnss_dir, pattern = "\\.RData$")
+
+jason_dir <- "../data/processed_daily_jason"
+filelist_jason <- list.files(path = jason_dir, pattern = "\\.RData$")
+
+# these are the cygnss and jason variable names we want to use
+cygnss_vars <- c(
+    "sat", "lat", "lon", "sc_lat", "sc_lon",
+    "wind_speed", "wind_speed_uncertainty", "time"
+)
+  
+jason_vars <- c(
+    "lat", "lon", "surface_type", "alt", "bathymetry",
+    "wind_speed", "wind_speed_mle3", "time"
+)
+
+# loop over the dates
 for (j in 1:length(dates)){
+
   cat('\nDate: ', as.character(dates[j]))
-  
-  cygnss_dir <- "../data/processed_daily_cygnss"
-  filelist <- list.files(path = cygnss_dir, pattern = "\\.RData$")
-  cygnss_dat <- matrix(NA, nrow = 0, ncol = 8)
-  file_ind <- grep( dates[j], filelist )
-  temp_data <- loadRData( file.path( cygnss_dir, filelist[ file_ind ] ) )
-  cygnss_dat <- rbind( cygnss_dat, temp_data )
-  colnames(cygnss_dat) <- c("sat", "lat", "lon", "sc_lat", "sc_lon", "wind_speed", "wind_speed_uncertainty", "time")
-  cygnss_dat[,'time'] <- cygnss_dat[,'time'] - min(cygnss_dat[,'time'])
+
+  # load in the cygnss data file for dates[j]
+  file_ind <- grep( dates[j], filelist_cygnss )
+  cygnss_dat <- loadRData( file.path( cygnss_dir, filelist_cygnss[ file_ind ] ) )
+  colnames(cygnss_dat) <- cygnss_vars
+    
+  # get rid of missing values
   cygnss_dat <- na.omit(cygnss_dat)
-  cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 247] <- 1
-  cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 249] <- 2
-  cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 43] <- 3
-  cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 44] <- 4
-  cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 47] <- 5
-  cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 54] <- 6
-  cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 55] <- 7
-  cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 73] <- 8
+
+  # set minimum time to 0, everything else relative to that
+  # min_time is used again for jason
+  min_time <- min(cygnss_dat[,'time'])
+  cygnss_dat[,'time'] <- cygnss_dat[,'time'] - min_time
+
+  # relabel the satellite numbers
+  satnum_dict <- c("247"=1, "249"=2, "43"=3, "44"=4, "47"=5, "54"=6, "55"=7, "73"=8)
+  for(s in 1:num_cygnss){
+      ii <- cygnss_dat[,'sat'] == as.numeric( names(satnum_dict)[s] )
+      cygnss_dat[ii,'sat'] <- satnum_dict[s]
+  }
   
-  jason_dir <- "../data/processed_daily_jason"
-  filelist <- list.files(path = jason_dir, pattern = "\\.RData$")
-  jason_dat <- matrix(NA, nrow = 0, ncol = 8)
-  file_ind <- grep( dates[j], filelist )
-  temp_data <- loadRData( file.path( jason_dir, filelist[ file_ind ] ) )
-  jason_dat <- rbind( jason_dat, temp_data )
-  colnames(jason_dat) <- c("lat", "lon", "surface_type", "alt", "bathymetry", "wind_speed", "wind_speed_mle3", "time")
-  jason_dat[,'time'] <- jason_dat[,'time'] - min(jason_dat[,'time'])
+  # load in the jason data
+  file_ind <- grep( dates[j], filelist_jason )
+  jason_dat <- loadRData( file.path( jason_dir, filelist_jason[ file_ind ] ) )
+  colnames(jason_dat) <- jason_vars
+
+  # get rid of missing values and land values
   jason_dat <- na.omit(jason_dat)
-  rm(temp_data); gc()
   jason_dat <- jason_dat[ jason_dat[,'surface_type'] == 0 , ]
-  
-  
+
+  # reset time relative to minimum time
+  jason_dat[,'time'] <- jason_dat[,'time'] - min_time
+
+
   ### Distances
   num_hours = 24
   num_sec = 3600*num_hours
@@ -62,17 +93,20 @@ for (j in 1:length(dates)){
     
     # go to next time in seq if cygnss_dat or jason_dat does not have measurement at time
     # within tolerance
-    if ( !any( abs(time - jason_dat$time) < tolerance ) || !any( abs(time - cygnss_dat$time) < tolerance ) ) {
+    if ( all( abs(time - jason_dat$time)  > tolerance ) ||
+         all( abs(time - cygnss_dat$time) > tolerance )
+    ){
       next
     }
     
-    for (satnum in 1:8){
+    for (satnum in 1:num_cygnss){
       
       cygnss_satnum <- cygnss_dat[which(cygnss_dat$sat==satnum),]
       jws_vec = cws_vec = dist_vec = numeric()
       
       if (any( abs(time - cygnss_satnum$time) < tolerance ) ) {
-        i <- which(abs(time - cygnss_satnum$time) %in% abs(time - cygnss_satnum$time[which(abs(time - cygnss_satnum$time) < tolerance )]) )
+        i <- which(abs(time - cygnss_satnum$time) %in%
+                   abs(time - cygnss_satnum$time[which(abs(time - cygnss_satnum$time) < tolerance )]) )
         ij <- which(abs(time - jason_dat$time) %in% abs(time - jason_dat$time[which(abs(time - jason_dat$time) < tolerance )]) )
         
         x1 <- cbind(jason_dat$lon[ij], jason_dat$lat[ij])
