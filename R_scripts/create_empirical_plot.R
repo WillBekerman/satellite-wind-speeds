@@ -18,7 +18,7 @@ save_dir <- "../figures"
 
 for (sat in 1:8){
   
-  #pdf(file.path( save_dir, paste0("empirical-plt-cyg",sat,".pdf") ), width = 4, height = 4)
+  pdf(file.path( save_dir, paste0("empirical-plt-cyg",sat,".pdf") ), width = 4, height = 4)
   
   jason_speed = jws_l[[sat]][which(dist_l[[sat]]<t3 & dist_l[[sat]]>t2)]
   cygnss_speed = cws_l[[sat]][which(dist_l[[sat]]<t3 & dist_l[[sat]]>t2)]
@@ -39,7 +39,7 @@ for (sat in 1:8){
   legend('bottomright', legend= c( paste0('< ',t3,' km'), paste0('< ',t2,' km'), paste0('< ',t1,' km') ), fill=2:4, cex=0.8)
   abline(0,1)
   
-  #dev.off()
+  dev.off()
   
 }
 
