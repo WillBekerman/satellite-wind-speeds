@@ -62,7 +62,7 @@ for (j in 1:length(dates)){
     
     # go to next time in seq if cygnss_dat or jason_dat does not have measurement at time
     # within tolerance
-    if ( !any( abs(time - jason_dat[,ncol(jason_dat)]) < tolerance ) || !any( abs(time - cygnss_dat[,ncol(cygnss_dat)]) < tolerance ) ) {
+    if ( !any( abs(time - jason_dat$time) < tolerance ) || !any( abs(time - cygnss_dat$time) < tolerance ) ) {
       next
     }
     
