@@ -6,7 +6,7 @@ library(fields)
 source("../R/load_data.R")
 
 date_1 <- as.Date('2019-09-28')
-date_2 <- as.Date('2019-10-04')
+date_2 <- as.Date('2020-09-25')
 dates <- seq(date_1, to = date_2, by = 'day')
 
 # filter out "bad" dates, i.e. dates with no Jason data
@@ -29,6 +29,7 @@ for(j in 1:num_cygnss){
 cygnss_dir <- "../data/processed_daily_cygnss"
 filelist_cygnss <- list.files(path = cygnss_dir, pattern = "\\.RData$")
 
+# directory for jason data, jason RData files
 jason_dir <- "../data/processed_daily_jason"
 filelist_jason <- list.files(path = jason_dir, pattern = "\\.RData$")
 
@@ -56,11 +57,6 @@ for (j in 1:length(dates)){
   # get rid of missing values
   cygnss_dat <- na.omit(cygnss_dat)
 
-  # set minimum time to 0, everything else relative to that
-  # min_time is used again for jason
-  min_time <- min(cygnss_dat[,'time'])
-  cygnss_dat[,'time'] <- cygnss_dat[,'time'] - min_time
-
   # relabel the satellite numbers
   satnum_dict <- c("247"=1, "249"=2, "43"=3, "44"=4, "47"=5, "54"=6, "55"=7, "73"=8)
   for(s in 1:num_cygnss){
@@ -77,15 +73,17 @@ for (j in 1:length(dates)){
   jason_dat <- na.omit(jason_dat)
   jason_dat <- jason_dat[ jason_dat[,'surface_type'] == 0 , ]
 
-  # reset time relative to minimum time
+  # reset time relative to minimum time across cygnss and jason records (set to zero)
+  min_time <- min(cygnss_dat[,'time'], jason_dat[,'time'])
+  cygnss_dat[,'time'] <- cygnss_dat[,'time'] - min_time
   jason_dat[,'time'] <- jason_dat[,'time'] - min_time
 
 
   ### Distances
   num_hours = 24
   num_sec = 3600*num_hours
-  by = 10*60 # ten minutes
-  tolerance = 5*60 # five minutes
+  by = 60*60 # one hour
+  tolerance = 30*60 # half hour
   
   for (time in (seq(0, num_sec, by = by))) {
     
@@ -101,10 +99,13 @@ for (j in 1:length(dates)){
     
     for (satnum in 1:num_cygnss){
       
+      # extract data from cygnss_dat corresponding to satnum
       cygnss_satnum <- cygnss_dat[which(cygnss_dat$sat==satnum),]
+      
+      # initialize lists that we intend to save
       jws_vec = cws_vec = dist_vec = numeric()
       
-      if (any( abs(time - cygnss_satnum$time) < tolerance ) ) {
+      if ( any( abs(time - cygnss_satnum$time) < tolerance ) ) {
         i <- which(abs(time - cygnss_satnum$time) %in%
                    abs(time - cygnss_satnum$time[which(abs(time - cygnss_satnum$time) < tolerance )]) )
         ij <- which(abs(time - jason_dat$time) %in% abs(time - jason_dat$time[which(abs(time - jason_dat$time) < tolerance )]) )
