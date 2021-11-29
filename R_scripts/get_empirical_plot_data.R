@@ -5,14 +5,25 @@ library(fields)
 # source functions
 source("../R/load_data.R")
 
-date_1 <- as.Date('2019-09-28')
-date_2 <- as.Date('2020-09-25')
-dates <- seq(date_1, to = date_2, by = 'day')
+# date_1 <- as.Date('2019-09-28')
+# date_2 <- as.Date('2020-09-25')
+# dates <- seq(date_1, to = date_2, by = 'day')
+# 
+# # filter out "bad" dates, i.e. dates with no Jason data
+# `%nin%` <- Negate('%in%')
+# dates <- dates[dates %nin% seq(as.Date("2020-02-01"), as.Date("2020-02-14"), by = 'day')]
+# dates <- dates[dates %nin% seq(as.Date("2020-06-13"), as.Date("2020-06-19"), by = 'day')]
 
-# filter out "bad" dates, i.e. dates with no Jason data
-`%nin%` <- Negate('%in%')
-dates <- dates[dates %nin% seq(as.Date("2020-02-01"), as.Date("2020-02-14"), by = 'day')]
-dates <- dates[dates %nin% seq(as.Date("2020-06-13"), as.Date("2020-06-19"), by = 'day')]
+## in form of c("2020-MM-DD, "2020-MM-DD")
+## example
+## args <- c("2020-01-01","2020-01-07")
+args <- commandArgs(trailingOnly=TRUE) 
+
+# process date parameters
+# script assumes we have files for each date in the range
+date_1 <- as.Date(args[1])
+date_2 <- as.Date(args[2])
+dates <- seq(date_1, to = date_2, by = 'day')
 
 # initialize lists that we intend to save
 num_cygnss <- 8
@@ -134,7 +145,10 @@ for (j in 1:length(dates)){
 }
 
 save_dir <- "../data/empirical_plot_data"
-save(dist_l, jws_l, cws_l, file = file.path(save_dir, "empirical_plot_data_lists.RData"))
+#save(dist_l, jws_l, cws_l, file = file.path(save_dir, "empirical_plot_data_lists.RData"))
+
+filename <- paste0('empirical_plot_data_lists-', dates[1], '-to-', dates[length(dates)], '.RData')
+save(dist_l, jws_l, cws_l, file = file.path(save_dir, filename))
 
 rm(list = ls())
 gc()
