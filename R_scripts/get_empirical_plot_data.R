@@ -93,8 +93,8 @@ for (j in 1:length(dates)){
   ### Distances
   num_hours = 24
   num_sec = 3600*num_hours
-  by = 60*60*2 # one hour
-  tolerance = 30*60*2 # half hour
+  by = 60*60*6 # one hour
+  tolerance = 60*60*3 # half hour
   
   for (time in (seq(0, num_sec, by = by))) {
     
