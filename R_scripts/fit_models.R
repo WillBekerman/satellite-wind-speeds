@@ -29,10 +29,11 @@ for(j in 1:length(dates)){
 }
 # assign variable names
 colnames(cygnss_dat) <-
-    c("sat", "lat", "lon", "sc_lat", "sc_lon", "wind_speed", "wind_speed_uncertainty", "time")
+    c("sat", "lat", "lon", "sc_lat", "sc_lon", "wind_speed", "wind_speed_uncertainty", "time", "antenna")
 
 # remove missing values
 cygnss_dat <- na.omit(cygnss_dat)
+cygnss_dat <- cygnss_dat[cygnss_dat$antenna == 2 | cygnss_dat$antenna == 3,]
 
 # standardize satellite naming
 cygnss_dat[,'sat'][cygnss_dat[,'sat'] == 247] <- 1
@@ -96,15 +97,20 @@ for( cyg_sat in 1:8 ){
     obs <- sort( sample(1:nrow(dat_this_cyg), numsat) )
 
     # define the cygnss dataset
-    dat_cyg <- as.data.frame( dat_this_cyg[ obs, c("lat","lon","time","wind_speed") ] )
-    dat_cyg$sat_num <- 1
+    dat_cyg <- as.data.frame( dat_this_cyg[ obs, c("lat","lon","time","wind_speed","antenna") ] )
+    # dat_cyg$sat_num <- 1
+    dat_cyg$starboard <- ifelse(dat_cyg$antenna == 2, 1, 0)
+    dat_cyg$port <- ifelse(dat_cyg$antenna == 3, 1, 0)
+    dat_cyg <- subset(dat_cyg, select = -antenna)
 
     # sample numsat observations from jason
     obs <- sort( sample(1:nrow(jason_dat), numsat) )
 
     # define the jason dataset
     dat_jas <- as.data.frame( jason_dat[ obs, c("lat","lon","time","wind_speed") ] )
-    dat_jas$sat_num <- 0
+    # dat_jas$sat_num <- 0
+    dat_jas$starboard <- 0
+    dat_jas$port <- 0
 
     # combine cygnss and jason datasets
     dat <- rbind( dat_cyg, dat_jas )
@@ -120,21 +126,17 @@ for( cyg_sat in 1:8 ){
 
     # create variables for design matrix
     dat$intercept <- 1
-    # dat$lat_sq <- dat$lat^2
-    # dat$lat_cub <- dat$lat^3
     dat$radians <- dat$lat*pi/180
     dat$radians_sq <- dat$radians^2
     dat$radians_cub <- dat$radians^3
     
     # create y, locs, X for input to fit_model
     y <- dat$wind_speed
-    #locs <- as.matrix( dat[ , c("x","y","z","time","sat_num") ] )
     locs <- as.matrix( dat[ , c("x","y","z","time") ] )
-    # X <- as.matrix( dat[, c("intercept","time","sat_num","lat","lat_sq","lat_cub")] )
-    X <- as.matrix( dat[, c("intercept","time","sat_num","radians","radians_sq","radians_cub")] )
+    # X <- as.matrix( dat[, c("intercept","time","sat_num","radians","radians_sq","radians_cub")] )
+    X <- as.matrix( dat[, c("intercept","time","starboard","port","radians","radians_sq","radians_cub")] )
     
     # fit the model
-    # model <- GpGp::fit_model(y, locs, X, covfun_name = "matern_spacetime_categorical_local")
     model <- GpGp::fit_model(y, locs, X, covfun_name = covfun)
 
     # save it
