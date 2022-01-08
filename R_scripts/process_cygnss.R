@@ -22,7 +22,7 @@ for(j in 1:length(filelist)){
     # define variables that we want to extract
     vars <- c(
         "spacecraft_id", "lat", "lon", "sc_lat", "sc_lon", "wind_speed",
-        "wind_speed_uncertainty", "sample_time"
+        "wind_speed_uncertainty", "sample_time", "antenna"
     )
 
     # loop over the variables, put in varlist, replace fillvalue with NA

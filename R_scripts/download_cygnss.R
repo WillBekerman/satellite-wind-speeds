@@ -11,7 +11,7 @@ date_start <- as.Date(paste(year,"01","01",sep="-")) + cycle_start - 1
 
 vars <- c(
     "spacecraft_id", "lat", "lon", "sc_lat", "sc_lon", "wind_speed",
-    "wind_speed_uncertainty", "sample_time"
+    "wind_speed_uncertainty", "sample_time", "antenna"
 )
 varlist <- paste(vars,collapse=",")
 
