@@ -14,16 +14,20 @@ source("../R/load_data.R")
 # dates <- dates[dates %nin% seq(as.Date("2020-02-01"), as.Date("2020-02-14"), by = 'day')]
 # dates <- dates[dates %nin% seq(as.Date("2020-06-13"), as.Date("2020-06-19"), by = 'day')]
 
-## in form of c("2020-MM-DD, "2020-MM-DD")
+## in form of c("2020-MM-DD, "2020-MM-DD", "antenna")
 ## example
-## args <- c("2020-01-01","2020-01-07")
-args <- commandArgs(trailingOnly=TRUE) 
+## args <- c("2020-01-01","2020-01-07", "starboard")
+args <- commandArgs(trailingOnly=TRUE)
 
 # process date parameters
 # script assumes we have files for each date in the range
 date_1 <- as.Date(args[1])
 date_2 <- as.Date(args[2])
 dates <- seq(date_1, to = date_2, by = 'day')
+
+# process antenna parameter
+antenna <- args[3]
+antenna_num <- ifelse(antenna == 'starboard', 2, 3) # corresponds to cygnss dataset lables
 
 # initialize lists that we intend to save
 num_cygnss <- 8
@@ -47,7 +51,7 @@ filelist_jason <- list.files(path = jason_dir, pattern = "\\.RData$")
 # these are the cygnss and jason variable names we want to use
 cygnss_vars <- c(
     "sat", "lat", "lon", "sc_lat", "sc_lon",
-    "wind_speed", "wind_speed_uncertainty", "time"
+    "wind_speed", "wind_speed_uncertainty", "time", "antenna"
 )
   
 jason_vars <- c(
@@ -67,6 +71,7 @@ for (j in 1:length(dates)){
     
   # get rid of missing values
   cygnss_dat <- na.omit(cygnss_dat)
+  cygnss_dat <- cygnss_dat[cygnss_dat$antenna == antenna_num,]
 
   # relabel the satellite numbers
   satnum_dict <- c("247"=1, "249"=2, "43"=3, "44"=4, "47"=5, "54"=6, "55"=7, "73"=8)
@@ -93,8 +98,8 @@ for (j in 1:length(dates)){
   ### Distances
   num_hours = 24
   num_sec = 3600*num_hours
-  by = 60*60*4 # one hour
-  tolerance = 60*60*2 # half hour
+  by = 60*60*2 # two hours
+  tolerance = 60*60*1 # one hour
   
   for (time in (seq(0, num_sec, by = by))) {
     
@@ -147,7 +152,7 @@ for (j in 1:length(dates)){
 save_dir <- "../data/empirical_plot_data"
 #save(dist_l, jws_l, cws_l, file = file.path(save_dir, "empirical_plot_data_lists.RData"))
 
-filename <- paste0('empirical_plot_data_lists-', dates[1], '-to-', dates[length(dates)], '.RData')
+filename <- paste0('empirical_plot_data_lists-', dates[1], '-to-', dates[length(dates)], '-', antenna, '.RData')
 save(dist_l, jws_l, cws_l, file = file.path(save_dir, filename))
 
 rm(list = ls())
