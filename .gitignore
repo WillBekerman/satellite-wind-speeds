@@ -2,3 +2,4 @@ model_fits/*.RData
 data/*/*.RData
 data/*/*.nc
 data/*/*.nc4
+figures/*.pdf
