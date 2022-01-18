@@ -26,7 +26,7 @@ date_2 <- as.Date(args[2])
 dates <- seq(date_1, to = date_2, by = 'day')
 
 # process antenna parameter
-antenna <- 'port'
+antenna <- args[3]
 antenna_num <- ifelse(antenna == 'starboard', 2, 3) # corresponds to cygnss dataset lables
 
 # initialize lists that we intend to save
