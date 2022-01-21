@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # download the cygnss data
-#./download_cygnss 2019 271 365
-#./download_cygnss 2020 1 269 
+#Rscript ../R_scripts/download_cygnss.R 2019 271 365
+#Rscript ../R_scripts/download_cygnss.R 2020 1 269
 
 # download the jason data
 #./download_jason 133 170
@@ -21,5 +21,18 @@ do
 
 done < "../start_end_dates_small.txt"
 
-# generate some plots
-Rscript ../R_scripts/create_plots.R
+# generate model plots
+Rscript ../R_scripts/create_model_plots.R
+
+# get data for empirical plots
+while IFS= read -r line
+do
+    starboard_arg="${line} starboard"
+    Rscript ../R_scripts/get_empirical_plot_data.R $starboard_arg
+    port_arg="${line} port"
+    Rscript ../R_scripts/get_empirical_plot_data.R $port_arg
+
+done < "../start_end_dates_small.txt"
+
+# generate empirical plots
+Rscript ../R_scripts/create_empirical_plots.R
