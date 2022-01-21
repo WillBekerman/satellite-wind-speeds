@@ -1,5 +1,4 @@
 # load libraries
-setwd('./GitHub/satellite-wind-speeds/R_scripts')
 library(ggplot2)
 library(gridExtra)
 
