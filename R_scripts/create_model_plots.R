@@ -59,8 +59,8 @@ parameter_frame_bias$groupnew <- rep((1:length(parameter_frame$sat)),2)
 
 bias_plot = 
   ggplot(parameter_frame_bias) +
-  geom_point(aes(x=sat, y=b), size = 2.3, shape = 18, color = 'red') + 
-  geom_line(aes(x=sat, y=b, group=groupnew)) +
+  geom_point(aes(x=sat, y=b), size = 2, shape = 18, color = 'red') + 
+  geom_line(aes(x=sat, y=b, group=groupnew), size=0.25) +
   labs(title="CYGNSS Satellite Bias Estimates", x="CYGNSS Satellite Number", y = "Wind Speed (m/s)")+
   geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.25)
 
