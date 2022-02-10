@@ -60,3 +60,34 @@ quilt.plot(reduced_jason_dat$lon, reduced_jason_dat$lat, reduced_jason_dat$wind_
 map("world2", add=T)
 dev.off()
 
+
+# plot with 2 cygnss, one jason
+save_dir <- "../figures"
+pdf(file.path( save_dir, 'cygnss1_cygnss2_jason_world.pdf' ), width = 8, height = 8)
+
+par(mfrow=c(3,1), mar = c(1.5,4,4,2)+0.1)
+
+# function for plotting map
+map_plot <- function( x, y, z, title ){
+    quilt.plot(x, y, z, nx = 75, ny = 25,
+        main = title, zlim = c(0, 20), xaxt='n', yaxt='n', cex.main=1.75)
+}
+
+    
+# plot cygnss 1 (247)
+ii <- cygnss_dat$sat == 247
+map_plot( cygnss_dat$lon[ii], cygnss_dat$lat[ii], cygnss_dat$wind_speed[ii], "CYGNSS 1")
+map("world2", add=T)
+
+# plot cygnss 4 (44) 
+ii <- cygnss_dat$sat == 44
+map_plot( cygnss_dat$lon[ii], cygnss_dat$lat[ii], cygnss_dat$wind_speed[ii], "CYGNSS 4")
+map("world2", add=T)
+
+# jason
+ii <- jason_dat$lat > -38 & jason_dat$lat < 38
+map_plot(jason_dat$lon[ii], jason_dat$lat[ii], jason_dat$wind_speed[ii], "Jason-3" )
+map("world2", add=T)
+
+dev.off()
+
