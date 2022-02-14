@@ -68,21 +68,26 @@ parameter_frame <- na.omit(parameter_frame)
 ##### REGULAR PLOT ####  
 parameter_frame_starboard <- parameter_frame[,c('sat','b2')]
 names(parameter_frame_starboard) <- c("sat", "b")
-parameter_frame_starboard$sat <- parameter_frame_starboard$sat-0.1
+parameter_frame_starboard$sat <- parameter_frame_starboard$sat-0.2
 
 parameter_frame_port <- parameter_frame[,c('sat','b3')]
 names(parameter_frame_port) <- c("sat", "b")
-parameter_frame_port$sat <- parameter_frame_port$sat+0.1
+parameter_frame_port$sat <- parameter_frame_port$sat+0.2
 
 parameter_frame_bias <- rbind(parameter_frame_starboard, parameter_frame_port)
 parameter_frame_bias$groupnew <- rep((1:length(parameter_frame$sat)),2)
 
 bias_plot = 
   ggplot(parameter_frame_bias) +
-  geom_point(aes(x=sat, y=b), size = 2, shape = 18, color = 'red') + 
+  geom_point(aes(x=sat, y=b), size = 2, shape = 1, color = 'red') + 
   geom_line(aes(x=sat, y=b, group=groupnew), size=0.25) +
-  labs(title="CYGNSS Satellite Bias Estimates", x="CYGNSS Satellite Number", y = "Wind Speed (m/s)")+
-  geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.25)
+  labs(title="Empirical CYGNSS Satellite Bias Estimates", x="CYGNSS Satellite Number", y = "Wind Speed (m/s)")+
+  geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.25) +
+  scale_x_continuous(breaks = c(0.8,1,1.2,1.8,2,2.2,2.8,3,3.2,3.8,4,4.2,4.8,5,5.2,5.8,6,6.2,6.8,7,7.2,7.8,8,8.2), 
+                     labels = c("S","1","P","S","2","P","S","3","P","S","4","P","S","5","P","S","6","P","S","7","P","S","8","P")) +
+  theme(axis.text.x = element_text(color = rep(c('red','grey30','red'),8), size = rep(c(9,11,9),8)),
+        axis.ticks.x = element_line(color = rep(c('red','grey30','red'),8), size = rep(c(0.2,0.5,0.2),8)),
+        panel.grid.minor = element_blank(), panel.grid.major.x = element_line(color = rep(c(NA,'white',NA),8)))
 
 pdf(file.path( save_dir, 'cygnss_bias_plot_allweeks_empirical.pdf' ), width = 8, height = 5)
 bias_plot
@@ -102,8 +107,8 @@ parameter_frame_sat_factor_bias_port <- parameter_frame_sat_factor %>%
   group_by(sat) %>% summarise( n=n(), mean=mean(b3), sd=sd(b3) ) %>%
   mutate( se=sd/sqrt(n)) %>% mutate( ic=se * qt((1-0.01)/2 + 0.5, n-1))
 
-parameter_frame_sat_factor_bias_starboard$sat <- ( (1:8)-0.1 )
-parameter_frame_sat_factor_bias_port$sat <- ( (1:8)+0.1 )
+parameter_frame_sat_factor_bias_starboard$sat <- ( (1:8)-0.2 )
+parameter_frame_sat_factor_bias_port$sat <- ( (1:8)+0.2 )
 
 parameter_frame_sat_factor_bias <- rbind(parameter_frame_sat_factor_bias_starboard, parameter_frame_sat_factor_bias_port)
 parameter_frame_sat_factor_bias$group <- c(rep(1,8),rep(2,8))
@@ -112,10 +117,15 @@ parameter_frame_sat_factor_bias$groupnew <- rep(seq(1,8),2)
 ci_plot = 
   ggplot(parameter_frame_sat_factor_bias) +
   geom_errorbar(aes(x=sat, ymin=mean-ic, ymax=mean+ic), width=0.4, colour="black") +
-  geom_point(aes(x=sat, y=mean), size = 3, shape = 18, color = 'red') + 
+  geom_point(aes(x=sat, y=mean), size = 3, shape = 1, color = 'red') + 
   geom_line(aes(x=sat, y=mean, group=groupnew)) +
-  labs(title="CYGNSS Satellite Bias Estimates (99% CI)", x="CYGNSS Satellite Number", y = "Wind Speed (m/s)")+
-  geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.25)
+  labs(title="Empirical CYGNSS Satellite Bias Estimates (99% CI)", x="CYGNSS Satellite Number", y = "Wind Speed (m/s)")+
+  geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.25) +
+  scale_x_continuous(breaks = c(0.8,1,1.2,1.8,2,2.2,2.8,3,3.2,3.8,4,4.2,4.8,5,5.2,5.8,6,6.2,6.8,7,7.2,7.8,8,8.2), 
+                     labels = c("S","1","P","S","2","P","S","3","P","S","4","P","S","5","P","S","6","P","S","7","P","S","8","P")) +
+  theme(axis.text.x = element_text(color = rep(c('red','grey30','red'),8), size = rep(c(9,11,9),8)),
+        axis.ticks.x = element_line(color = rep(c('red','grey30','red'),8), size = rep(c(0.2,0.5,0.2),8)),
+        panel.grid.minor = element_blank(), panel.grid.major.x = element_line(color = rep(c(NA,'white',NA),8)))
 
 pdf(file.path( save_dir, 'cygnss_bias_plot_allweeks_ci_empirical.pdf' ), width = 8, height = 5)
 ci_plot
@@ -136,10 +146,13 @@ empvmod =
   geom_point(aes(shape=antenna, color=sat), size = 3.5)+
   geom_abline(slope = 1, intercept = 0, linetype='dashed', color="black", size = 1)+
   scale_color_brewer(palette="Dark2") + 
-  labs(title="CYGNSS Satellite Bias Estimates: Empirical vs. Model-Based", x="Model-Based Average Estimates", y = "Empirical Average Estimates")+
-  scale_x_continuous(limits = c(-1.1,1.1))+scale_y_continuous(limits = c(-1.1, 1.1))+ 
+  labs(title="Empirical vs. Model-Based Bias Estimates", x="Model-Based Average Estimates", y = "Empirical Average Estimates")+
+  geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1)+
+  geom_vline(xintercept=0, linetype="dashed", color = "black", size = 1)+
+  scale_x_continuous(limits = c(-1.1,0.2))+scale_y_continuous(limits = c(-1.1,0.2))+ 
   labs(color='CYGNSS\nSatellite',shape='CYGNSS\nAntenna')+
-  theme(legend.position='bottom',legend.box='vertical')
+  theme(text = element_text(size=14),
+        legend.position='bottom',legend.box='horizontal',aspect.ratio=1)
 
 pdf(file.path( save_dir, 'empvmod.pdf' ), width = 8, height = 6.5)
 empvmod
