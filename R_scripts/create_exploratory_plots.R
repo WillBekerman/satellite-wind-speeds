@@ -1,6 +1,7 @@
 # load libraries
 library(fields)
 library(maps)
+library(viridis)
 
 # Assume we are running from the R_scripts directory
 # source functions
@@ -63,14 +64,16 @@ dev.off()
 
 # plot with 2 cygnss, one jason
 save_dir <- "../figures"
-pdf(file.path( save_dir, 'cygnss1_cygnss2_jason_world.pdf' ), width = 8, height = 8)
+pdf(file.path( save_dir, 'cygnss1_cygnss4_jason_world.pdf' ), width = 8, height = 8)
 
-par(mfrow=c(3,1), mar = c(1.5,4,4,2)+0.1)
+par(mfrow=c(3,1), mar = c(1,2,2,2))
 
 # function for plotting map
 map_plot <- function( x, y, z, title ){
     quilt.plot(x, y, z, nx = 75, ny = 25,
-        main = title, zlim = c(0, 20), xaxt='n', yaxt='n', cex.main=1.75)
+        main = title, zlim = c(0, 20), xaxt='n', yaxt='n',
+        cex.main=1.75, col = viridis(64), legend.cex = 2)
+    mtext("m/s", side=4, line = 6 )
 }
 
     
