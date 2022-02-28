@@ -76,7 +76,9 @@ text(x1 + x2,y1, "Jason-3 vs.")
 for(j in 1:num_cygnss){
     text( x1 + x2 + x3 + x4*(j-1), y1, paste0("CYGNSS ",j), col = cols[j] )
 }
-    
+ 
+dist_list = list()
+comparison_ix = 1
 for(j1 in 1:(num_cygnss-1)){
     for(j2 in (j1+1):num_cygnss){
 
@@ -98,7 +100,12 @@ for(j1 in 1:(num_cygnss-1)){
 
         }
         ii <- !is.na(distvec)
-        lines( all_times[ii]/60, distvec[ii], col = "lightgray" )
+        if (j1 == 1 && j2 == 4){lines( all_times[ii]/60, distvec[ii], col = "black" )} # plot (1,4) in black
+        else {lines( all_times[ii]/60, distvec[ii], col = "lightgray" )}
+        
+        dist_list[[comparison_ix]] <- distvec
+        comparison_ix = comparison_ix+1
+        
     }
 }
 
@@ -123,4 +130,13 @@ for(j in 1:num_cygnss){
     lines( all_times[ii]/60, distvec[ii], col = cols[j], lwd = 1.5 )
 }
 dev.off()
+
+
+dist_list <- lapply(dist_list, function(x) x[!is.na(x)]) # remove NAs from list of distance vectors
+sort( as.numeric(lapply(dist_list, mean)),index.return=T )
+## ON THIS DATE, WE HAVE THAT:
+## minimum average distances: {(5,8), (1,3), (1,8)}
+## maximum average distances: {(4,6), (6,8), (5,6)}
+
+## Note that (1,4) mean distance >5000km on this date
 
