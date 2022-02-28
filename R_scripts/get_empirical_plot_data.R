@@ -101,7 +101,7 @@ for (j in 1:length(dates)){
   by = 60*60*2 # two hours
   tolerance = 60*60*1 # one hour
   
-  for (time in (seq(0, num_sec, by = by))) {
+  for (time in (seq(by/2, num_sec-by/2, by = by))) {
     
     cat(paste0(round(time/num_sec,4)*100,"%\n"))
     
