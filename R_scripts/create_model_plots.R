@@ -115,7 +115,7 @@ dev.off()
 ##### SIGMA PLOT ####  
 parameter_frame_sigma <- parameter_frame[,c('sat','c0','c4')]
 names(parameter_frame_sigma) <- c("sat", "c0", "c4")
-parameter_frame_sigma$sigma <- sqrt( parameter_frame_sigma$c0*parameter_frame_sigma$c4 )
+parameter_frame_sigma$sigma <- sqrt(2)*sqrt( parameter_frame_sigma$c0*parameter_frame_sigma$c4 )
 
 parameter_frame_sigma_new = parameter_frame_sigma[order(parameter_frame_sigma$sigma),]
 for (sat_num in 1:8){
@@ -125,16 +125,14 @@ for (sat_num in 1:8){
 
 sigma_plot = 
   ggplot(parameter_frame_sigma_new) +
-  geom_point(aes(x=sat, y=sigma), size = 3, shape = 1, color = 'red') + 
-  labs(title="\u03c3 Estimates", x="CYGNSS Satellite Number", y = "Wind Speed (m/s)")+
+  geom_point(aes(x=sat, y=sigma), size = 2, shape = 1, color = 'red') + 
+  labs(title=expression(paste(sqrt(2),sigma," Estimates")), x="CYGNSS Satellite Number", y = "Wind Speed (m/s)")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 8))+
   theme(axis.text.x = element_text(size = rep(11,8)))
 
-cairo_pdf(file.path( save_dir, 'cygnss_sigma_plot_allweeks.pdf' ), width = 8, height = 5)
+cairo_pdf(file.path( save_dir, 'cygnss_sigma_plot_allweeks.pdf' ), width = 6, height = 3.75)
 sigma_plot
 dev.off()
-
-
 
 ########## a3-a2 PLOT #########
 
@@ -151,14 +149,53 @@ for (sat_num in 1:8){
 
 a3a2_dif_plot = 
   ggplot(parameter_frame_a3a2_new) +
-  geom_point(aes(x=sat, y=dif), size = 3, shape = 1, color = 'red') + 
+  geom_point(aes(x=sat, y=dif), size = 2, shape = 1, color = 'red') + 
   labs(title="a3-a2 Estimates", x="CYGNSS Satellite Number", y = "Wind Speed (m/s)")+
   geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.25)+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 8))+
   theme(axis.text.x = element_text(size = rep(11,8)))
 
-pdf(file.path( save_dir, 'cygnss_a3a2_dif_plot_allweeks.pdf' ), width = 8, height = 5)
+pdf(file.path( save_dir, 'cygnss_a3a2_dif_plot_allweeks.pdf' ), width = 6, height = 3.75)
 a3a2_dif_plot
 dev.off()
 
+########## BIAS AS FUNCTION OF MEAN PLOT #########
+
+##### BIAS AS FUNCTION OF MEAN PLOT ####  
+parameter_frame_a3a2 <- parameter_frame[,c('sat','b2','b3')]
+names(parameter_frame_a3a2) <- c("sat", "a2", "a3")
+parameter_frame_a3a2$dif <- parameter_frame_a3a2$a3 - parameter_frame_a3a2$a2
+
+parameter_frame_a3a2_new = parameter_frame_a3a2[order(parameter_frame_a3a2$dif),]
+for (sat_num in 1:8){
+  old = parameter_frame_a3a2_new$sat[which(parameter_frame_a3a2_new$sat == sat_num)]
+  parameter_frame_a3a2_new$sat[which(parameter_frame_a3a2_new$sat == sat_num)] = old + seq(-0.25,0.25,length.out = length(old))
+}
+
+a3a2_dif_plot = 
+  ggplot(parameter_frame_a3a2_new) +
+  geom_point(aes(x=sat, y=dif), size = 2, shape = 1, color = 'red') + 
+  labs(title="a3-a2 Estimates", x="CYGNSS Satellite Number", y = "Wind Speed (m/s)")+
+  geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.25)+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 8))+
+  theme(axis.text.x = element_text(size = rep(11,8)))
+
+pdf(file.path( save_dir, 'cygnss_a3a2_dif_plot_allweeks.pdf' ), width = 6, height = 3.75)
+a3a2_dif_plot
+dev.off()
+
+
+#par(mfrow=c(1,1))
+#plot(parameter_frame$b0, parameter_frame$b2, col = 'red')
+#points(parameter_frame$b0, parameter_frame$b3, col = 'blue')
+
+#par(mfrow=c(2,1))
+plot(parameter_frame$b0, parameter_frame$b2, col = parameter_frame$sat)
+#for (satnum in 1:8){ lines(parameter_frame$b0[parameter_frame$sat==satnum], parameter_frame$b2[parameter_frame$sat==satnum], col = satnum) }
+for (satnum in 1:8){ abline(lm(parameter_frame$b2[parameter_frame$sat==satnum]~parameter_frame$b0[parameter_frame$sat==satnum]), col = satnum) }
+
+#par(mfrow=c(2,1))
+plot(parameter_frame$b0, parameter_frame$b3, col = parameter_frame$sat)
+#for (satnum in 1:8){ lines(parameter_frame$b0[parameter_frame$sat==satnum], parameter_frame$b2[parameter_frame$sat==satnum], col = satnum) }
+for (satnum in 1:8){ abline(lm(parameter_frame$b3[parameter_frame$sat==satnum]~parameter_frame$b0[parameter_frame$sat==satnum]), col = satnum) }
 
