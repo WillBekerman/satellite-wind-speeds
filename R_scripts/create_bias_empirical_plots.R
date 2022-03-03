@@ -45,7 +45,7 @@ for(j in 1:length(data_files)){
   }
 }
 
-pdf("pair_average_difference.pdf", width=7, height=4.2)
+pdf(file.path( save_dir, 'pair_average_difference.pdf' ), width=7, height=4.2)
 par(mfrow=c(2,4),oma=c(1,2,0,0),mar=c(3,2,2,1), cex.axis=0.75)
 for(j in 1:8){
     x1 <- jason_starboard[[j]]
