@@ -3,15 +3,19 @@ Examining and quantifying the discrepancies in wind speed observations recorded 
 
 # file structure
 
-*Makefile* - if you have GNU make installed, you can simply enter the
-comment "make" in the terminal to execute the Makefile and reproduce
-the results. Warning, this is computationally intensive.
-
-*data/* - original downaloaded .nc data files and processed .RData
- data files.
+*data/* - downloaded .nc data files and processed .RData data files.
 
 *R_scripts/* R scripts for processing data, fitting models, producing
  figures, etc.
 
-*R/* - Files containing R functions
+*R/* - Files containing R functions.
 
+*bash_scripts/* - Bash scripts for running analyses.
+
+*figures/* - For saving figures.
+
+*model_fits/* - For saving model fits.
+
+# reproduction
+
+Our analysis can be reproduced by running bash_scripts/full_analysis. See the contents of that file to learn more about each step of the analysis.
