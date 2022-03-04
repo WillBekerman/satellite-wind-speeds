@@ -14,6 +14,12 @@ Rscript ../R_scripts/process_jason.R
 # put jason into daily files
 Rscript ../R_scripts/create_daily_jason.R
 
+# generate exploratory map plots
+Rscript ../R_scripts/create_exploratory_plots.R
+
+# generate distance vs. time plot
+Rscript ../R_scripts/distance_vs_time_plot.R
+
 # do the analyses
 while IFS= read -r line
 do
@@ -36,3 +42,6 @@ done < "../start_end_dates.txt"
 
 # generate empirical plots
 Rscript ../R_scripts/create_empirical_plots.R
+
+# generate wind speed-dependent bias plots
+Rscript ../R_scripts/create_bias_empirical_plots.R
