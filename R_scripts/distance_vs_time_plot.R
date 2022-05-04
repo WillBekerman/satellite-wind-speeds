@@ -42,8 +42,9 @@ jason_dat <- jason_dat[ jason_dat[,'surface_type'] == 0 , ]
 jason_dat <- as.data.frame( jason_dat[ , c("lat","lon","wind_speed","time") ] )
 
 # standardize times in hours
-cygnss_dat$time <- cygnss_dat$time - min(c( cygnss_dat$time,jason_dat$time ))
-jason_dat$time <- jason_dat$time - min(c( cygnss_dat$time,jason_dat$time ))
+start_time <- min(c( cygnss_dat$time,jason_dat$time ))
+cygnss_dat$time <- cygnss_dat$time - start_time
+jason_dat$time <- jason_dat$time - start_time
 
 
 ########################## CYGNSS VS CYGNSS CODES #################################
