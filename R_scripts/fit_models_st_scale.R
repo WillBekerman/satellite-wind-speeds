@@ -59,6 +59,7 @@ filelist <- list.files(path = jason_dir, pattern = "\\.RData$")
 # find each day's file, and append to the data matrix
 jason_dat <- matrix(NA, nrow = 0, ncol = 8)
 for(j in 1:length(dates)){
+    print(j)
     file_ind <- grep( dates[j], filelist )
     temp_data <- loadRData( file.path( jason_dir, filelist[ file_ind ] ) )
     jason_dat <- rbind( jason_dat, temp_data )
@@ -158,6 +159,4 @@ save_dir <- "../model_fits"
 filename <- paste0('fit_st_scale-', dates[1], '-to-', dates[length(dates)], '.RData')
 save(models, file = file.path(save_dir, filename) )
 
-rm(list = ls())
-gc()
 
