@@ -10,16 +10,14 @@ source("../R/load_data.R")
 ## Generate a plot comparing wind speed measurements recorded by CYGNSS and Jason-3
 ## satellites during some randomly chosen week
 dates_txt = read.table('../start_end_dates.txt')
-set.seed(100)
-random_week = sample(1:nrow(dates_txt), 1)
-dates_use = dates_txt[random_week,]
+random_week = 10
+date_1 <- as.Date( dates_txt[random_week,1] )
+date_2 <- as.Date( dates_txt[random_week,2] )
 
 # Get CYGNSS data
 cygnss_dir <- "../data/processed_daily_cygnss"
 filelist <- list.files(path = cygnss_dir, pattern = "\\.RData$")
 cygnss_dat <- matrix(NA, nrow = 0, ncol = 9)
-date_1 <- as.Date(as.character(dates_use[[1]]))
-date_2 <- as.Date(as.character(dates_use[[2]]))
 dates <- seq(date_1, to = date_2, by = 'day')
 for(j in 1:length(dates)){
   file_ind <- grep( dates[j], filelist )
@@ -66,29 +64,35 @@ dev.off()
 save_dir <- "../figures"
 pdf(file.path( save_dir, 'cygnss1_cygnss4_jason_world.pdf' ), width = 8, height = 8)
 
-par(mfrow=c(3,1), mar = c(1,2,2,2))
-
 # function for plotting map
 map_plot <- function( x, y, z, title ){
-    quilt.plot(x, y, z, nx = 75, ny = 25,
-        main = title, zlim = c(0, 20), xaxt='n', yaxt='n',
+    quilt.plot(x, y, z, nx = 90, ny = 18,
+        main = title, zlim = c(0, 20), axes = FALSE,
         cex.main=1.75, col = viridis(64), legend.cex = 2)
     mtext("m/s", side=4, line = 6 )
+    axis(1, at = seq(0,360,by=60))
+    axis(2, at = seq(-30,30,by=15))
+    box()
 }
 
     
+par(mfrow=c(3,1), mar = c(3,3,2,2))
+
 # plot cygnss 1 (247)
 ii <- cygnss_dat$sat == 247
+print(sum(ii))
 map_plot( cygnss_dat$lon[ii], cygnss_dat$lat[ii], cygnss_dat$wind_speed[ii], "CYGNSS 1")
 map("world2", add=T)
 
 # plot cygnss 4 (44) 
 ii <- cygnss_dat$sat == 44
+print(sum(ii))
 map_plot( cygnss_dat$lon[ii], cygnss_dat$lat[ii], cygnss_dat$wind_speed[ii], "CYGNSS 4")
 map("world2", add=T)
 
 # jason
 ii <- jason_dat$lat > -38 & jason_dat$lat < 38
+print(sum(ii))
 map_plot(jason_dat$lon[ii], jason_dat$lat[ii], jason_dat$wind_speed[ii], "Jason-3" )
 map("world2", add=T)
 
