@@ -28,7 +28,7 @@ do
 done < "../missing_dates.txt"
 
 # generate model plots
-Rscript ../R_scripts/create_model_plots.R
+Rscript ../R_scripts/create_model_plots_st_scale.R
 
 # get data for empirical plots
 while IFS= read -r line
